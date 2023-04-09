@@ -1,0 +1,28 @@
+NODES:
+  - a
+  - b
+  - c
+  - d
+  - e
+  - f
+
+EDGES:
+  - head: a
+    tail: b
+    title: something1
+  - head: a
+    tail: c
+    title: something2
+  - head: a
+    tail: d
+    title: something3
+  - head: b
+    tail: c
+    title: something4
+  - head: b
+    tail: d
+    title: somethin5
+  - head: d
+    tail: b
+    title: somethin5
+  
