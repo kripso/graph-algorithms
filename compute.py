@@ -3,6 +3,9 @@ from functools import lru_cache, wraps
 from graphs import *
 import time
 import yaml
+import os
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def timeit(func):  
     @wraps(func)  
@@ -11,7 +14,7 @@ def timeit(func):
         result = func(*args, **kwargs)  
         end = time.perf_counter()  
 
-        print(f'{func.__name__} took {end - start:.6f} seconds to complete\n','-'*70, flush=True)
+        print(f' {end - start:.6f} |', flush=True)
         return result  
     return wrapper  
 
@@ -37,8 +40,8 @@ def traverse(move_, target_len):
     for next_move in move_.next_moves:
         paths.extend(traverse(move_.move(next_move), target_len))
     
-    if len(move_.path)==target_len:
-        return move_.path
+    if len(move_.path)==target_len and move_.path[-1] in move_.end_positions:
+        return move_.move(end=True).path
     
     return paths
 
@@ -46,10 +49,10 @@ def traverse(move_, target_len):
 # @lru_cache(maxsize=None)
 def calculate_path(n, k, move_set, target_len, start_position, multiplier):
     hammilton_paths_count = 0
-    paths = traverse(Move(move_set).overwrite_next_moves([start_position]), target_len)
+    paths = traverse(Traversable_Graph([start_position], move_set, n, k), target_len - 1)
     paths = set(','.join(str(item) for item in paths[i:i+target_len]) for i in range(0, len(paths), target_len))
     hammilton_paths_count += multiplier*len(paths)
-    with open(f'./data/graphs/{n=};{k=};{start_position=}.yaml', "w+") as file:
+    with open(f'{CURRENT_DIR}/data/graphs/{n=};{k=};{start_position=}.yaml', "w+") as file:
         yaml.dump({"paths": list(paths), 'count': hammilton_paths_count}, file, default_flow_style=False, sort_keys=False)
     return hammilton_paths_count
 
@@ -57,7 +60,7 @@ def calculate_path(n, k, move_set, target_len, start_position, multiplier):
 def calculate_paths(n=9, k=2):
     petersen = generalized_petersen_adj_matrix(n, k)
     move_set, (in_in, in_out, out_in, out_out) = get_move_set(petersen, n, k)
-    target_len = n*2
+    target_len = n*2 + 1
     
     preps = [(in_in, 2*n), (in_out, n), (out_in, n), (out_out, 2*n)]
     
@@ -65,7 +68,7 @@ def calculate_paths(n=9, k=2):
         futures = [e.submit(calculate_path, n, k, move_set, target_len, *prep) for prep in preps]
         result = [future.result() for future in futures]
 
-    print(f'for {n=} and {k=} the number of possible combinations is:', sum(result), flush=True)
+    print(f'| {n} | {k} | | {sum(result)} |', flush=True, end='')
 
 
 def is_isomorphic(n, k1, k2):
@@ -79,7 +82,7 @@ def is_isomorphic(n, k1, k2):
         return True
     return False
 
-def generate_petersen_combinations(min_n=3, max_n=15):
+def generate_petersen_combinations(min_n=3, max_n=10):
     combinations = []
 
     for n in range(min_n, max_n + 1):

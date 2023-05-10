@@ -3,22 +3,31 @@ from copy import deepcopy
 import numpy as np
 
 @dataclass
-class Move():
+class Traversable_Graph():
     path: list[int] = field(default_factory=list, init=False)
     position: tuple = field(default_factory=tuple, init=False)
-    next_moves: list[tuple()] = field(default_factory=list[tuple()], init=False)
+    initial_position: int =  field(default_factory=int, init=False)
+    end_positions: list[int] =  field(default_factory=list[int], init=False)
+    next_moves: list[tuple()] = field(default_factory=list[tuple()])
     possible_moves: list[tuple()] = field(default_factory=list[tuple()])
+    n: int = field(default_factory=int)
+    k: int = field(default_factory=int)
 
     def __post_init__(self):
-        self.next_moves = [item for move in self.possible_moves for item in move]
+        self.initial_position = self.next_moves[0]
+        if self.initial_position[0] != 0:
+            self.end_positions = [0, self.n+self.k, (self.n * 2) - self.k]
+        if self.initial_position[0] == 0:
+            self.end_positions= [1, self.n-1, self.n]
 
-    def overwrite_next_moves(self, next_moves):
-        self.next_moves = next_moves
-        return self
-
-    def move(self, position: tuple):
+    def move(self, position: tuple = None, end = False):
         new_move = deepcopy(self)
+        if end:
+            new_move.path.append(new_move.initial_position[0])
+            return new_move
+
         assert (position[1] not in new_move.path)
+
         if len(new_move.path) == 0:
             new_move.path.append(position[0])
     
