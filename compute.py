@@ -37,12 +37,13 @@ def get_move_set(petersen, n, k):
 # @lru_cache(maxsize=None)
 def traverse(move_, target_len):
     paths = []
+    if min([position in move_.path for position in move_.end_positions]):
+        return paths
     for next_move in move_.next_moves:
         paths.extend(traverse(move_.move(next_move), target_len))
     
     if len(move_.path)==target_len and move_.path[-1] in move_.end_positions:
-        return move_.move(end=True).path
-    
+        return move_.end().path
     return paths
 
 # @timeit
@@ -101,7 +102,7 @@ def generate_petersen_combinations(min_n=3, max_n=10):
 
 
 if __name__ == '__main__':
-    combinations = generate_petersen_combinations()
+    combinations = generate_petersen_combinations(3, 100)
 
     with ProcessPoolExecutor(max_workers=6) as e:
         futures = [e.submit(calculate_paths, *combination) for combination in combinations]

@@ -20,12 +20,13 @@ class Traversable_Graph():
         if self.initial_position[0] == 0:
             self.end_positions= [1, self.n-1, self.n]
 
+    def end(self):
+        new_move = deepcopy(self)
+        new_move.path.append(new_move.initial_position[0])
+        return new_move
+
     def move(self, position: tuple = None, end = False):
         new_move = deepcopy(self)
-        if end:
-            new_move.path.append(new_move.initial_position[0])
-            return new_move
-
         assert (position[1] not in new_move.path)
 
         if len(new_move.path) == 0:
