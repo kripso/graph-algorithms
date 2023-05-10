@@ -1,7 +1,4 @@
 # Generalized Petersen Graph
-
-dokumentaciu je mozne vidiet aj na: https://github.com/kripso/graph-algorithms
-
 ![](assets/Pasted%20image%2020230509092647.png)
 
 # Process
